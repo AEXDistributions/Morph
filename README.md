@@ -2,7 +2,7 @@
 
 # Morph
 
-**A console-based image processing engine for developers**
+**An image processing engine for developers**
 
 Apply and combine filters to create complex image transformations directly from the command line.
 
