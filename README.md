@@ -19,7 +19,3 @@ Interested in contributing? Watch this repository for updates on how you can get
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details
-
----
-
-Built for developers who need powerful, scriptable image processing in their workflow.
