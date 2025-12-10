@@ -15,13 +15,10 @@ A console-based image processing engine that uses nodes to apply and combine fil
 Seamlessly integrate into any workflow or automation script
 
 **Python Library**  
-Use Morph directly in your Python scripts and notebooks
+Use Morph directly in your Python scripts and notebooks, to intergrate seamlessly any application or development environment
 
 **Extensible**  
 Designed to support a vast collection of composable image filters
-
-**Universal**  
-Works with any application or development environment
 
 ## Status
 
