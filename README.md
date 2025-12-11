@@ -1,6 +1,6 @@
 # Morph
 
-**An image processing engine for developers.**
+**is an image processing engine for developers.**
 
 Apply and combine filters to create complex image transformations.
 
