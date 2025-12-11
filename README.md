@@ -1,35 +1,38 @@
-# Morph
+Morph Image Processing Engine
 
-**is an image processing engine that applies and combines filters, enabling complex image transformations directly from the command line.**
+Latest: 0.2.0 (Alpha Release)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Status](https://img.shields.io/badge/Status-In%20Development-orange)](https://github.com/yourusername/morph)
+Contact Author: wzssmex@gmail.com
 
----
+Morph is an image processing engine that applies and combines filters, enabling complex image transformations directly from the command line. It is optimized for experimentation and automation.
 
-## Overview
+Note: This is a test build. Features and performance are experimental — DO NOT expect perfection.
 
-Morph is designed as a foundation for building powerful image processing workflows. Whether you're automating batch operations, building graphics applications, or integrating image manipulation into your development pipeline, Morph provides the tools you need.
+Setup
 
-## Features
+Ensure the Morph executable and all required DLLs or dependencies are in the same folder:
 
-### Multi-Language Support
-Native support for Python, C, and C++. Use it directly in scripts, embed it in applications, or integrate it into your UI frameworks.
+.
+├── Morph.exe
+├── yourImage(s)
+└── ...
 
-### Extensible Architecture
-Built to support a comprehensive library of composable image filters. Chain and combine filters to create sophisticated processing pipelines.
+Features
 
-### Command-Line Interface
-Direct command-line access makes it ideal for automation, scripting, and cross-platform workflows.
+Multi-Language Support: Native support for Python, C, and C++. Use it in scripts or embed it in applications.
 
-## Development Status
+Extensible Architecture: Supports a library of composable image filters. Chain filters for advanced pipelines.
+
+Command-Line Interface: Ideal for automation, scripting, and cross-platform workflows.
+
+Development Status
 
 Morph is currently in active development. Star this repository to stay updated on releases and feature announcements.
 
-## Contributing
+Contributing
 
 We welcome contributions from the community. Watch this repository for upcoming contribution guidelines and development roadmap.
 
-## License
+License
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for full details.
+MIT License
