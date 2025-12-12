@@ -2,7 +2,7 @@
 
 **Author:** [wzssmex@gmail.com](mailto:wzssmex@gmail.com).
 
-Morph is designed as a **foundation for building powerful image processing workflows**. Whether you're automating batch operations, building graphics applications, or integrating image manipulation into your development pipeline, Morph provides the tools you need. This version introduces a new input and output system using -i@"path" and -o@"path", support for .tga .gif .webp, .tif and .tiff file types, a new "Grayscale" filter, bug fixes and new functionalities.
+Morph is designed as a **foundation for building powerful image processing workflows**. Whether you're automating batch operations, building graphics applications, or integrating image manipulation into your development pipeline, Morph provides the tools you need. This version introduces a new input and output system using -i@"path" and -o@"path", support for .tga .gif .webp .tif and .tiff files, a new "Grayscale" filter, bug fixes and new parameters.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-In%20Development-orange)](https://github.com/yourusername/morph)
