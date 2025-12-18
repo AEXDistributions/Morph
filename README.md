@@ -1,6 +1,6 @@
 # Morph - Media Processing Engine
 
-**Latest:** 0.0.36 (Alpha Release)  
+**Latest:** 0.0.41 (Alpha Release)  
 **Author:** [wzssmex@gmail.com](mailto:wzssmex@gmail.com)
 
 Morph is designed as a **foundation for building powerful image processing workflows**. Whether you're automating batch operations, building graphics applications, or integrating image manipulation into your development pipeline, Morph provides the tools you need. This version introduces optimized in-memory processing, automatic folder structure creation, a new preview system, and enhanced workflow flexibility.
