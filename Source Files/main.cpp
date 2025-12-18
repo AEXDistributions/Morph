@@ -14,34 +14,36 @@
 
 namespace fs = std::filesystem;
 
-std::vector<std::string> splitCommand(const std::string& input) {
-    std::vector<std::string> tokens;
-    std::string current;
-    bool inQuotes = false;
 
-    for (char c : input) {
-        if (c == '"') {
-            inQuotes = !inQuotes;
+std::vector<std::string> parseCommand(const std::string& input) {
+    std::vector<std::string> tokens;
+    std::string current_token;
+    bool inside_quotes = false;
+
+    for (char character : input) {
+        if (character == '"') {
+            inside_quotes = !inside_quotes;
         }
-        else if (c == ' ' && !inQuotes) {
-            if (!current.empty()) {
-                tokens.push_back(current);
-                current.clear();
+        else if (character == ' ' && !inside_quotes) {
+            if (!current_token.empty()) {
+                tokens.push_back(current_token);
+                current_token.clear();
             }
         }
         else {
-            current += c;
+            current_token += character;
         }
     }
 
-    if (!current.empty()) {
-        tokens.push_back(current);
+    if (!current_token.empty()) {
+        tokens.push_back(current_token);
     }
 
     return tokens;
 }
 
-void printHelp() {
+
+void displayHelp() {
     std::cout << "\n=== Morph - Image Processing Engine ===\n" << std::endl;
     std::cout << "Commands:" << std::endl;
     std::cout << "  -i @\"path\"              Load image(s) from file or folder" << std::endl;
@@ -52,123 +54,150 @@ void printHelp() {
     std::cout << "  preview <filename>      Save specific image to Morph/output" << std::endl;
     std::cout << "  -o @\"path\"              Export images and clear" << std::endl;
     std::cout << "  -o keep @\"path\"         Export images but keep in input" << std::endl;
+    std::cout << "  help                    Show this help message" << std::endl;
     std::cout << "  exit                    Exit program\n" << std::endl;
 }
+
+
+void handleInputCommand(Pipeline& pipeline, const std::vector<std::string>& tokens) {
+    if (tokens.size() < 2) {
+        std::cerr << "Use -i @\"path\" to load images" << std::endl;
+        return;
+    }
+
+    std::string path = tokens[1];
+    if (path[0] == '@') {
+        pipeline.addInput(path.substr(1));
+    }
+    else {
+        std::cerr << "Use -i @\"path\" to load images" << std::endl;
+    }
+}
+
+
+void handleFilterCommand(Pipeline& pipeline, const std::vector<std::string>& tokens) {
+    if (tokens.size() == 1) {
+        pipeline.listInput();
+        return;
+    }
+
+    std::string filter_name = tokens[1];
+    std::transform(filter_name.begin(), filter_name.end(), filter_name.begin(), ::tolower);
+
+    if (filter_name == "grayscale") {
+        std::string percent_str = (tokens.size() >= 3) ? tokens[2] : "100";
+        std::string target_file = (tokens.size() >= 4) ? tokens[3] : "";
+
+        size_t percent_pos = percent_str.find('%');
+        if (percent_pos != std::string::npos) {
+            percent_str.erase(percent_str.begin() + percent_pos);
+        }
+
+        double intensity = 100.0;
+        try {
+            intensity = std::stod(percent_str);
+        }
+        catch (const std::invalid_argument& e) {
+            std::cerr << "Invalid percentage value: " << percent_str << std::endl;
+            return;
+        }
+
+        pipeline.applyGrayscale(target_file, intensity);
+    }
+    else {
+        std::cerr << "Unknown filter: " << filter_name << std::endl;
+    }
+}
+
+
+void handlePreviewCommand(Pipeline& pipeline, const std::vector<std::string>& tokens) {
+    std::string target_file = (tokens.size() >= 2) ? tokens[1] : "";
+    pipeline.savePreview(target_file);
+}
+
+
+void handleOutputCommand(Pipeline& pipeline, const std::vector<std::string>& tokens) {
+    if (tokens.size() < 2) {
+        std::cerr << "Use -o @\"path\" [keep/clear] [filename] to export" << std::endl;
+        return;
+    }
+
+    std::string output_path;
+    bool clear_after_export = true;
+    std::string target_file;
+
+    for (size_t i = 1; i < tokens.size(); i++) {
+        std::string token = tokens[i];
+        std::string token_lower = token;
+        std::transform(token_lower.begin(), token_lower.end(), token_lower.begin(), ::tolower);
+
+        if (token[0] == '@') {
+            output_path = token.substr(1);
+        }
+        else if (token_lower == "keep") {
+            clear_after_export = false;
+        }
+        else if (token_lower == "clear") {
+            clear_after_export = true;
+        }
+        else {
+            target_file = token;
+        }
+    }
+
+    if (output_path.empty()) {
+        std::cerr << "Use -o @\"path\" [keep/clear] [filename] to export" << std::endl;
+        return;
+    }
+
+    pipeline.exportOutput(output_path, clear_after_export, target_file);
+}
+
 
 int main() {
     Pipeline pipeline;
     bool running = true;
 
+    std::cout << "\n=== Morph - Image Processing Engine ===\n" << std::endl;
+    std::cout << "Type 'help' for commands\n" << std::endl;
+
     while (running) {
         std::cout << "> ";
-        std::string input;
-        std::getline(std::cin, input);
+        std::string user_input;
+        std::getline(std::cin, user_input);
 
-        if (input.empty()) continue;
+        if (user_input.empty()) continue;
 
-        auto tokens = splitCommand(input);
+        std::vector<std::string> tokens = parseCommand(user_input);
         if (tokens.empty()) continue;
 
-        // Lowercase the command only
-        std::string cmd = tokens[0];
-        std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
+        std::string command = tokens[0];
+        std::transform(command.begin(), command.end(), command.begin(), ::tolower);
 
-        if (cmd == "exit" || cmd == "quit") {
-            // Show memory usage before exit
-            size_t ram_bytes = pipeline.getRAMUsage();
-            if (ram_bytes > 0) {
-                double ram_mb = ram_bytes / (1024.0 * 1024.0);
-                std::cout << "\nClearing " << ram_mb << " MB from input..." << std::endl;
+        if (command == "exit" || command == "quit") {
+            size_t memory_bytes = pipeline.getMemoryUsage();
+            if (memory_bytes > 0) {
+                double memory_mb = memory_bytes / (1024.0 * 1024.0);
+                std::cout << "\nClearing " << memory_mb << " MB from input..." << std::endl;
             }
             running = false;
         }
-        else if (cmd == "help") {
-            printHelp();
+        else if (command == "help") {
+            displayHelp();
         }
-        else if (cmd == "-i" && tokens.size() >= 2) {
-            std::string path = tokens[1];
-            if (path[0] == '@') {
-                pipeline.addInput(path.substr(1));
-            }
-            else {
-                std::cerr << "Use -i @\"path\" to load images" << std::endl;
-            }
+        else if (command == "-i") {
+            handleInputCommand(pipeline, tokens);
         }
-        else if (cmd == "@i") {
-            if (tokens.size() == 1) {
-                // List images in RAM
-                pipeline.listInput();
-            }
-            else if (tokens.size() >= 2) {
-                std::string filter = tokens[1];
-                std::transform(filter.begin(), filter.end(), filter.begin(), ::tolower);
-
-                if (filter == "grayscale") {
-                    std::string percent = (tokens.size() >= 3) ? tokens[2] : "100";
-                    std::string target = (tokens.size() >= 4) ? tokens[3] : "";
-
-                    // Remove % symbol if present
-                    size_t pos = percent.find('%');
-                    if (pos != std::string::npos) {
-                        percent.erase(percent.begin() + pos);
-                    }
-
-                    double val = 100.0;
-                    try {
-                        val = std::stod(percent);
-                    }
-                    catch (const std::invalid_argument& e) {
-                        std::cerr << "Invalid percentage value: " << percent << std::endl;
-                        continue;
-                    }
-
-                    pipeline.applyGrayscale(target, val);
-                }
-                else {
-                    std::cerr << "Unknown filter: " << filter << std::endl;
-                }
-            }
+        else if (command == "@i") {
+            handleFilterCommand(pipeline, tokens);
         }
-        else if (cmd == "preview") {
-            // Save preview to Morph/output folder
-            std::string target = (tokens.size() >= 2) ? tokens[1] : "";
-            pipeline.savePreview(target);
+        else if (command == "preview") {
+            handlePreviewCommand(pipeline, tokens);
         }
-        else if (cmd == "-o" && tokens.size() >= 2) {
-            // Parse -o command with flexible argument order
-            std::string path;
-            bool clearRAM = true; // default
-            std::string target;
-
-            for (size_t i = 1; i < tokens.size(); i++) {
-                std::string token = tokens[i];
-                std::string token_lower = token;
-                std::transform(token_lower.begin(), token_lower.end(), token_lower.begin(), ::tolower);
-
-                if (token[0] == '@') {
-                    path = token.substr(1);
-                }
-                else if (token_lower == "keep") {
-                    clearRAM = false;
-                }
-                else if (token_lower == "clear") {
-                    clearRAM = true;
-                }
-                else {
-                    // Assume it's a target filename
-                    target = token;
-                }
-            }
-
-            if (path.empty()) {
-                std::cerr << "Use -o @\"path\" [keep/clear] [filename] to export" << std::endl;
-            }
-            else {
-                pipeline.exportOutput(path, clearRAM, target);
-            }
+        else if (command == "-o") {
+            handleOutputCommand(pipeline, tokens);
         }
-        else if (cmd == "list") {
-            // Legacy command support
+        else if (command == "list") {
             pipeline.listInput();
         }
         else {
